@@ -33,31 +33,33 @@ var signupCmd = &cobra.Command{
 	Short: "singup for box app!",
 	Long: `You can signup for box app For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+box signup --e email -p password`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var email string
-		var password string
-		for true {
-			email = callEmail()
-			if helpers.ValidateEmail(email) {
-				break
-			}
-		}
-		for true {
-			password = callPassword()
-			if helpers.ValidatePassword(password) {
-				if password == callConfirmPassword() {
-					fmt.Println("Welcome to Box App " + email)
-					helpers.SignUP(email, password)
+		email, _ := cmd.Flags().GetString("email")
+		password, _ := cmd.Flags().GetString("password")
+
+		if email == "" || !helpers.ValidateEmail(email) {
+			for true {
+				email = callEmail()
+				if helpers.ValidateEmail(email) {
 					break
-				} else {
-					fmt.Println("Passwords didnt match")
+				}
+			}
+		} else if password == "" || !helpers.ValidatePassword(password) {
+			for true {
+				password = callPassword()
+				if helpers.ValidatePassword(password) {
+					if password == callConfirmPassword() {
+						break
+					} else {
+						fmt.Println("Passwords didnt match")
+					}
 				}
 			}
 		}
-
+		// Register User
+		fmt.Println("Welcome to Box App " + email)
+		helpers.SignUP(email, password)
 	},
 }
 
@@ -72,7 +74,8 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// signupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	signupCmd.Flags().StringP("email", "e", "", "signup email for Box App")
+	signupCmd.Flags().StringP("password", "p", "", "signup password for Box App")
 }
 
 func callEmail() (email string) {

@@ -17,8 +17,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+	"path/filepath"
+
+	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -57,7 +59,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.box.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.box/.box.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -78,14 +80,21 @@ func initConfig() {
 		}
 
 		// Search config in home directory with name ".box" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".box")
+		viper.SetConfigFile(home + "/.box/box.yaml")
+
+		// Create .box/box.yaml
+		if err := viper.ReadInConfig(); err != nil {
+			filename := filepath.Join(home + "/.box/box.yaml")
+			dirname := filepath.Join(home + "/.box")
+			if _, err := os.Stat(dirname); os.IsNotExist(err) {
+				os.Mkdir(dirname, 0777)
+			}
+			_, err := os.Create(filename)
+			if err != nil {
+				panic(fmt.Sprintf("Failed to create %s", filename))
+			}
+		}
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
 }
