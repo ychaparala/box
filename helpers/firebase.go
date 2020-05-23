@@ -12,8 +12,8 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-// SignUP returns userprofile
-func SignUP(uname, password string) {
+// SignUP returns bool
+func SignUP(uname, password string) bool {
 	url := "https://identitytoolkit.googleapis.com/v1/accounts:signUp"
 	key := "AIzaSyBCfZSG0cOs_SNKtW1PG2-LRPE9S3LTcmA"
 	requestBody, err := json.Marshal(map[string]string{
@@ -37,11 +37,14 @@ func SignUP(uname, password string) {
 	}
 	if resp.StatusCode == 200 {
 		SetUserData(body)
+		return true
 	}
+	fmt.Println("Signup to Box App Failed, Invalid email or password")
+	return false
 }
 
-// Login returns userprofile
-func Login(uname, password string) {
+// Login returns bool
+func Login(uname, password string) bool {
 	url := "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
 	key := "AIzaSyBCfZSG0cOs_SNKtW1PG2-LRPE9S3LTcmA"
 	requestBody, err := json.Marshal(map[string]string{
@@ -66,13 +69,14 @@ func Login(uname, password string) {
 
 	if resp.StatusCode != 200 {
 		fmt.Println("Login Failed invalid email or password")
-	} else {
-		SetUserData(body)
-		fmt.Println("Login Successful")
+		return false
 	}
+	SetUserData(body)
+	fmt.Println("Login Successful")
+	return true
 }
 
-// Logout returns bool
+// Logout returns void
 func Logout() {
 	// Find home directory.
 	home, err := homedir.Dir()
@@ -84,7 +88,7 @@ func Logout() {
 	fmt.Println("Logout Successful")
 }
 
-// LoginStatus returns
+// LoginStatus returns void
 func LoginStatus() {
 	row := GetUserData()
 	if row["localId"] != "" {

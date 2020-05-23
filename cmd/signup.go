@@ -58,8 +58,9 @@ box signup --e email -p password`,
 			}
 		}
 		// Register User
-		fmt.Println("Welcome to Box App " + email)
-		helpers.SignUP(email, password)
+		if helpers.SignUP(email, password) {
+			fmt.Println("Welcome to Box App " + email)
+		}
 	},
 }
 
