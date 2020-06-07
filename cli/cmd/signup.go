@@ -19,7 +19,9 @@ import (
 	"box/helpers"
 	"bufio"
 	"fmt"
+	"html"
 	"os"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -45,7 +47,8 @@ box signup --e email -p password`,
 					break
 				}
 			}
-		} else if password == "" || !helpers.ValidatePassword(password) {
+		}
+		if password == "" || !helpers.ValidatePassword(password) {
 			for true {
 				password = callPassword()
 				if helpers.ValidatePassword(password) {
@@ -59,7 +62,7 @@ box signup --e email -p password`,
 		}
 		// Register User
 		if helpers.SignUP(email, password) {
-			fmt.Println("Welcome to Box App " + email)
+			fmt.Println("Welcome to Box App " + email + " " + html.UnescapeString("&#"+strconv.Itoa(128075)+";"))
 		}
 	},
 }

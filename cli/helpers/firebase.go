@@ -4,10 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"html"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
 )
@@ -36,7 +40,7 @@ func SignUP(uname, password string) bool {
 		panic(err)
 	}
 	if resp.StatusCode == 200 {
-		SetUserData(body)
+		PutUserData(body)
 		return true
 	}
 	fmt.Println("Signup to Box App Failed, Invalid email or password")
@@ -71,9 +75,40 @@ func Login(uname, password string) bool {
 		fmt.Println("Login Failed invalid email or password")
 		return false
 	}
-	SetUserData(body)
-	fmt.Println("Login Successful")
+	PutUserData(body)
+	fmt.Println("Login Successful " + html.UnescapeString("&#"+strconv.Itoa(128077)+";"))
 	return true
+}
+
+//GetAccessToken returns firebase Access Token
+func GetAccessToken() string{
+	tokenURL := "https://securetoken.googleapis.com/v1/token"
+	key := "AIzaSyBCfZSG0cOs_SNKtW1PG2-LRPE9S3LTcmA"
+	row := GetUserData()
+	data := url.Values{}
+	data.Set("grant_type", "refresh_token")
+	data.Set("refresh_token",row["refreshToken"])
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("POST", tokenURL+"?key="+key, strings.NewReader(data.Encode()))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var accessJSON map[string] interface{}
+	if err := json.Unmarshal(body, &accessJSON); err != nil {
+		panic(err)
+	}
+	return fmt.Sprint(accessJSON["access_token"])
 }
 
 // Logout returns void
@@ -89,11 +124,10 @@ func Logout() {
 }
 
 // LoginStatus returns void
-func LoginStatus() {
+func LoginStatus() (bool, string) {
 	row := GetUserData()
 	if row["localId"] != "" {
-		fmt.Println("Logged into Box App")
-	} else {
-		fmt.Println("Logged out of Box App")
+		return true, row["email"]
 	}
+	return false, ""
 }

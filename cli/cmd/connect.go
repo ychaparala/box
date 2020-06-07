@@ -16,14 +16,15 @@ limitations under the License.
 package cmd
 
 import (
+	"box/helpers"
 	"fmt"
 
 	"github.com/spf13/cobra"
 )
 
-// storageCmd represents the storage command
-var storageCmd = &cobra.Command{
-	Use:   "storage",
+// connectCmd represents the connect command
+var connectCmd = &cobra.Command{
+	Use:   "connect",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -32,20 +33,36 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("storage called")
+		fmt.Println("add called")
+	},
+}
+
+// statusCmd represents the status of login
+var googleDriveCmd = &cobra.Command{
+	Use:   "googleDrive",
+	Short: "connect googleDrive to box app!",
+	Long: `connect googleDrive to box app example:
+
+	box connect googleDrive`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// helpers.AddGoogleDrive("/Users/yuga/Downloads/credentials.json")
+		var gd helpers.GoogleDrive
+		//gd.Connect()
+		gd.Usage()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(storageCmd)
+	rootCmd.AddCommand(connectCmd)
+	connectCmd.AddCommand(googleDriveCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// storageCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// addCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// storageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

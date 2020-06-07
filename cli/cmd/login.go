@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"box/helpers"
+	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -49,7 +50,12 @@ var statusCmd = &cobra.Command{
 
 	box login status`,
 	Run: func(cmd *cobra.Command, args []string) {
-		helpers.LoginStatus()
+		ls, email := helpers.LoginStatus()
+		if ls {
+			fmt.Println("Logged into Box App with " + email)
+		} else {
+			fmt.Println("Logged out of Box App")
+		}
 	},
 }
 
